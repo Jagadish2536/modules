@@ -72,6 +72,15 @@ resource "aws_subnet" "database" {
     )
 }
 
+resource "aws_db_subnet_group" "default" {
+  name       = "${local.name}"
+  subnet_ids = aws_subnet.database[*].id
+
+  tags = {
+    Name = "${local.name}"
+  }
+}
+
 
 #creating Elastic IP
 resource "aws_eip" "eip" {
@@ -132,7 +141,7 @@ resource "aws_route_table" "private" {
 resource "aws_route" "private_route" {
     route_table_id = aws_route_table.private.id
     destination_cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+    nat_gateway_id = aws_nat_gateway.main.id
 }
 
 
@@ -153,7 +162,7 @@ resource "aws_route_table" "database" {
 resource "aws_route" "database_route" {
     route_table_id = aws_route_table.database.id
     destination_cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
+    nat_gateway_id = aws_nat_gateway.main.id
 }
 
 #Public Route table association
